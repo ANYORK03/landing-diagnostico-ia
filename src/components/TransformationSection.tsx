@@ -35,7 +35,7 @@ export default function TransformationSection({
             whileTap={{ scale: 0.97 }}
             className="glow-purple mt-10 rounded-full bg-gradient-to-r from-purple-600 to-red-600 px-8 py-4 text-base font-semibold text-white sm:text-lg"
           >
-            Quiero recuperar mi tiempo →
+            Quiero hacer mi diagnóstico y recuperar mi tiempo →
           </motion.button>
         </FadeIn>
       </div>

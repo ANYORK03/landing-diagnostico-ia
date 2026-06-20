@@ -31,10 +31,17 @@ export default function Hero({ onStart }: { onStart: () => void }) {
         </h1>
       </FadeIn>
 
-      <FadeIn delay={0.22}>
-        <p className="mt-6 max-w-xl text-balance text-lg text-zinc-400 sm:text-xl">
+      <FadeIn delay={0.18}>
+        <p className="mt-5 max-w-xl text-balance text-base font-medium text-zinc-300 sm:text-lg">
+          Para dueños de negocios que sienten que todo depende de ellos.
+        </p>
+      </FadeIn>
+
+      <FadeIn delay={0.26}>
+        <p className="mt-4 max-w-xl text-balance text-lg text-zinc-400 sm:text-xl">
           Sistemas antes que esfuerzo. Director antes que operador. Descubre
-          en 60 segundos qué tareas puede asumir hoy un Empleado Digital IA.
+          en 60 segundos cuál de nuestros 4 Empleados Digitales — Vera, Max,
+          Nora o Leo — debería asumir primero tus tareas.
         </p>
       </FadeIn>
 
