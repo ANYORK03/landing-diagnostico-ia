@@ -42,6 +42,8 @@ const negocioLabels: Record<string, string> = {
   otro: "Otro",
 };
 
+const CALIENTE = new Set(["listo", "evaluando"]);
+
 function buildWhatsappLink(answers: Record<string, string>, name: string) {
   const lines = [
     `Hola, soy ${name}. Acabo de hacer el Diagnóstico de Negocios IA en la web 👋`,
@@ -58,6 +60,50 @@ function buildWhatsappLink(answers: Record<string, string>, name: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
 }
 
+function MeetingButton({ primary }: { primary: boolean }) {
+  return (
+    <motion.a
+      href={MEETING_LINK}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ scale: primary ? 1.04 : 1.02 }}
+      whileTap={{ scale: 0.97 }}
+      className={
+        primary
+          ? "glow-purple block rounded-full bg-gradient-to-r from-purple-600 to-red-600 px-8 py-4 text-base font-semibold text-white sm:text-lg"
+          : "block rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-zinc-300 hover:border-white/30 hover:text-white"
+      }
+    >
+      {primary ? "Agendar mi llamada (15 min) →" : "Prefiero agendar una llamada"}
+    </motion.a>
+  );
+}
+
+function WhatsappButton({
+  primary,
+  href,
+}: {
+  primary: boolean;
+  href: string;
+}) {
+  return (
+    <motion.a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ scale: primary ? 1.04 : 1.02 }}
+      whileTap={{ scale: 0.97 }}
+      className={
+        primary
+          ? "glow-purple block rounded-full bg-gradient-to-r from-purple-600 to-red-600 px-8 py-4 text-base font-semibold text-white sm:text-lg"
+          : "block rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-zinc-300 hover:border-white/30 hover:text-white"
+      }
+    >
+      {primary ? "Recibir mi diagnóstico por WhatsApp →" : "Prefiero escribirte por WhatsApp"}
+    </motion.a>
+  );
+}
+
 export default function QuizResult({
   answers,
   name,
@@ -68,7 +114,10 @@ export default function QuizResult({
   onRestart: () => void;
 }) {
   const area = areaLabels[answers.area] ?? "tu operación diaria";
+  const horas = horasLabels[answers.horas] ?? "varias horas a la semana";
+  const delegar = delegarLabels[answers.delegar] ?? "tareas repetitivas";
   const whatsappLink = buildWhatsappLink(answers, name);
+  const mostrarLlamadaPrimero = CALIENTE.has(answers.inversion);
 
   return (
     <div className="text-center">
@@ -77,38 +126,47 @@ export default function QuizResult({
       </div>
 
       <h3 className="text-balance mt-6 text-2xl font-bold text-white sm:text-3xl">
-        {name !== "Sin nombre" ? `${name}, tu` : "Tu"} negocio ya está listo
-        para un Empleado Digital.
+        {name !== "Sin nombre" ? `${name}, este` : "Este"} es tu diagnóstico.
       </h3>
 
-      <p className="mt-4 text-balance leading-relaxed text-zinc-400">
-        Según tus respuestas, el mayor punto de fuga de tiempo está en{" "}
-        <span className="font-semibold text-zinc-200">{area}</span>. Eso es
-        exactamente lo que un Empleado Digital IA puede asumir por ti desde
-        la primera semana.
+      <div className="glass mt-6 rounded-2xl p-5 text-left sm:p-6">
+        <dl className="space-y-3 text-sm sm:text-base">
+          <div>
+            <dt className="text-zinc-500">Área principal de fuga de tiempo</dt>
+            <dd className="font-semibold text-zinc-100">{area}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Horas perdidas estimadas por semana</dt>
+            <dd className="font-semibold text-zinc-100">{horas}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">
+              Primer rol recomendado para tu Empleado Digital
+            </dt>
+            <dd className="font-semibold text-zinc-100">{delegar}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <p className="mt-5 text-balance leading-relaxed text-zinc-400">
+        Te preparo un diagnóstico personalizado y te lo envío por WhatsApp. Si
+        quieres, también podemos ver juntos cómo se vería tu Empleado Digital
+        en una llamada de 15 minutos.
       </p>
 
-      <motion.a
-        href={MEETING_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.97 }}
-        className="glow-purple mt-8 inline-block rounded-full bg-gradient-to-r from-purple-600 to-red-600 px-8 py-4 text-base font-semibold text-white sm:text-lg"
-      >
-        Agendar mi diagnóstico (15 min) →
-      </motion.a>
-
-      <motion.a
-        href={whatsappLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-        className="mt-3 block rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-zinc-300 hover:border-white/30 hover:text-white"
-      >
-        Prefiero escribirte por WhatsApp
-      </motion.a>
+      <div className="mt-6 flex flex-col gap-3">
+        {mostrarLlamadaPrimero ? (
+          <>
+            <MeetingButton primary />
+            <WhatsappButton href={whatsappLink} primary={false} />
+          </>
+        ) : (
+          <>
+            <WhatsappButton href={whatsappLink} primary />
+            <MeetingButton primary={false} />
+          </>
+        )}
+      </div>
 
       <button
         onClick={onRestart}
