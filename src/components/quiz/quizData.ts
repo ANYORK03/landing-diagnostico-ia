@@ -52,4 +52,15 @@ export const quizQuestions: QuizQuestion[] = [
       { label: "Solo viendo qué existe", value: "viendo" },
     ],
   },
+  {
+    id: "negocio",
+    question: "¿Qué tipo de negocio tienes?",
+    options: [
+      { label: "Restaurante o comida", value: "restaurante" },
+      { label: "Tienda o e-commerce", value: "tienda" },
+      { label: "Servicios profesionales", value: "servicios" },
+      { label: "Salud o belleza", value: "salud-belleza" },
+      { label: "Otro", value: "otro" },
+    ],
+  },
 ];

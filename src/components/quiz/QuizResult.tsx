@@ -33,10 +33,19 @@ const inversionLabels: Record<string, string> = {
   viendo: "solo viendo qué existe",
 };
 
-function buildWhatsappLink(answers: Record<string, string>) {
+const negocioLabels: Record<string, string> = {
+  restaurante: "Restaurante o comida",
+  tienda: "Tienda o e-commerce",
+  servicios: "Servicios profesionales",
+  "salud-belleza": "Salud o belleza",
+  otro: "Otro",
+};
+
+function buildWhatsappLink(answers: Record<string, string>, name: string) {
   const lines = [
-    "Hola, acabo de hacer el Diagnóstico de Negocios IA en la web 👋",
+    `Hola, soy ${name}. Acabo de hacer el Diagnóstico de Negocios IA en la web 👋`,
     "",
+    `Tipo de negocio: ${negocioLabels[answers.negocio] ?? "—"}`,
     `Área que más tiempo me roba: ${areaLabels[answers.area] ?? "—"}`,
     `Horas semanales en tareas manuales: ${horasLabels[answers.horas] ?? "—"}`,
     `Lo primero que delegaría: ${delegarLabels[answers.delegar] ?? "—"}`,
@@ -50,13 +59,15 @@ function buildWhatsappLink(answers: Record<string, string>) {
 
 export default function QuizResult({
   answers,
+  name,
   onRestart,
 }: {
   answers: Record<string, string>;
+  name: string;
   onRestart: () => void;
 }) {
   const area = areaLabels[answers.area] ?? "tu operación diaria";
-  const whatsappLink = buildWhatsappLink(answers);
+  const whatsappLink = buildWhatsappLink(answers, name);
 
   return (
     <div className="text-center">
@@ -65,7 +76,8 @@ export default function QuizResult({
       </div>
 
       <h3 className="text-balance mt-6 text-2xl font-bold text-white sm:text-3xl">
-        Tu negocio ya está listo para un Empleado Digital.
+        {name !== "Sin nombre" ? `${name}, tu` : "Tu"} negocio ya está listo
+        para un Empleado Digital.
       </h3>
 
       <p className="mt-4 text-balance leading-relaxed text-zinc-400">

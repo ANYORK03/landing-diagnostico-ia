@@ -6,15 +6,18 @@ import { quizQuestions } from "./quizData";
 import ProgressBar from "./ProgressBar";
 import QuizOptionButton from "./QuizOptionButton";
 import QuizResult from "./QuizResult";
+import NameStep from "./NameStep";
 
 type Answers = Record<string, string>;
 
 const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
+  const [name, setName] = useState<string | null>(null);
 
   const totalSteps = quizQuestions.length;
-  const isFinished = step >= totalSteps;
+  const onNameStep = step === totalSteps && name === null;
+  const isFinished = step >= totalSteps && name !== null;
   const currentQuestion = quizQuestions[step];
 
   function handleSelect(value: string) {
@@ -25,6 +28,7 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
 
   function handleRestart() {
     setAnswers({});
+    setName(null);
     setStep(0);
   }
 
@@ -40,15 +44,20 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
             Diagnóstico de Negocios IA
           </h2>
           <p className="mt-3 text-zinc-400">
-            Menos de 60 segundos. Solo elige, sin escribir nada.
+            Menos de 60 segundos. Solo elige y al final tu nombre.
           </p>
         </div>
 
         <div className="glass rounded-3xl p-6 sm:p-10">
-          {!isFinished && <ProgressBar current={step + 1} total={totalSteps} />}
+          {!isFinished && (
+            <ProgressBar
+              current={Math.min(step + 1, totalSteps + 1)}
+              total={totalSteps + 1}
+            />
+          )}
 
           <AnimatePresence mode="wait">
-            {!isFinished && currentQuestion ? (
+            {currentQuestion && step < totalSteps ? (
               <motion.div
                 key={currentQuestion.id}
                 initial={{ opacity: 0, x: 24 }}
@@ -69,6 +78,16 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
                   ))}
                 </div>
               </motion.div>
+            ) : onNameStep ? (
+              <motion.div
+                key="name"
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <NameStep onSubmit={(value) => setName(value)} />
+              </motion.div>
             ) : (
               <motion.div
                 key="result"
@@ -76,7 +95,11 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <QuizResult answers={answers} onRestart={handleRestart} />
+                <QuizResult
+                  answers={answers}
+                  name={name ?? "Sin nombre"}
+                  onRestart={handleRestart}
+                />
               </motion.div>
             )}
           </AnimatePresence>
