@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const WHATSAPP_NUMBER = "17206943519";
 const MEETING_LINK = "https://meetings-na2.hubspot.com/york-martinez";
@@ -20,6 +21,20 @@ const horasLabels: Record<string, string> = {
   "mas-30": "más de 30 horas/semana",
 };
 
+const horasSemanaEstimado: Record<string, number> = {
+  "menos-5": 4,
+  "5-15": 10,
+  "15-30": 22,
+  "mas-30": 35,
+};
+
+const horasScore: Record<string, number> = {
+  "menos-5": 1,
+  "5-15": 2,
+  "15-30": 3,
+  "mas-30": 4,
+};
+
 const delegarLabels: Record<string, string> = {
   responder: "responder y calificar clientes",
   agendar: "agendar citas y seguimientos",
@@ -32,6 +47,13 @@ const inversionLabels: Record<string, string> = {
   evaluando: "evaluando opciones este mes",
   curioso: "curioso, explorando aún",
   viendo: "solo viendo qué existe",
+};
+
+const inversionScore: Record<string, number> = {
+  listo: 4,
+  evaluando: 3,
+  curioso: 2,
+  viendo: 1,
 };
 
 const negocioLabels: Record<string, string> = {
@@ -77,6 +99,66 @@ const empleadoPorArea: Record<string, EmpleadoRecomendado> = {
     iniciales: "L",
   },
 };
+
+type Urgencia = {
+  nivel: "Alta" | "Media" | "Baja";
+  porcentaje: number;
+  color: string;
+  mensaje: string;
+};
+
+function calcularUrgencia(answers: Record<string, string>): Urgencia {
+  const score =
+    (horasScore[answers.horas] ?? 1) + (inversionScore[answers.inversion] ?? 1);
+  const porcentaje = Math.round((score / 8) * 100);
+
+  if (score >= 6) {
+    return {
+      nivel: "Alta",
+      porcentaje,
+      color: "from-red-500 to-orange-400",
+      mensaje: "Esto te está costando dinero cada semana que pasa.",
+    };
+  }
+  if (score >= 4) {
+    return {
+      nivel: "Media",
+      porcentaje,
+      color: "from-yellow-400 to-orange-400",
+      mensaje: "Vale la pena resolverlo este mes, antes de que crezca.",
+    };
+  }
+  return {
+    nivel: "Baja",
+    porcentaje,
+    color: "from-emerald-400 to-teal-400",
+    mensaje: "Hay margen, pero ya identificaste el problema — no lo dejes pasar.",
+  };
+}
+
+function AnimatedNumber({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    let start: number | null = null;
+    const duration = 900;
+    let frame = 0;
+
+    function step(timestamp: number) {
+      if (start === null) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      setDisplay(Math.round(progress * value));
+      if (progress < 1) {
+        frame = requestAnimationFrame(step);
+      }
+    }
+
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [value]);
+
+  return <>{display}</>;
+}
 
 function buildWhatsappLink(
   answers: Record<string, string>,
@@ -158,6 +240,8 @@ export default function QuizResult({
   const empleado = empleadoPorArea[answers.area] ?? empleadoPorArea.clientes;
   const whatsappLink = buildWhatsappLink(answers, name, empleado);
   const mostrarLlamadaPrimero = CALIENTE.has(answers.inversion);
+  const urgencia = calcularUrgencia(answers);
+  const horasMes = Math.round((horasSemanaEstimado[answers.horas] ?? 8) * 4.3);
 
   return (
     <div className="text-center">
@@ -169,14 +253,62 @@ export default function QuizResult({
         {name !== "Sin nombre" ? `${name}, este` : "Este"} es tu diagnóstico.
       </h3>
 
-      <div className="glass mt-6 rounded-2xl p-5 text-left sm:p-6">
+      {/* Hero: número animado de horas perdidas al mes */}
+      <div className="glow-purple mt-6 rounded-2xl border border-purple-400/30 bg-gradient-to-br from-purple-600/15 to-red-600/10 p-6 sm:p-7">
+        <p className="text-xs uppercase tracking-wider text-purple-300">
+          Estás perdiendo aproximadamente
+        </p>
+        <p className="mt-1 text-5xl font-extrabold text-white sm:text-6xl">
+          <AnimatedNumber value={horasMes} />
+          <span className="text-2xl font-bold text-zinc-300 sm:text-3xl"> hrs/mes</span>
+        </p>
+        <p className="mt-1 text-sm text-zinc-300">
+          en <span className="font-semibold text-zinc-100">{area}</span> — tiempo
+          que tu negocio te está cobrando cada semana.
+        </p>
+
+        {/* Barra de urgencia */}
+        <div className="mt-5 text-left">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold uppercase tracking-wider text-zinc-300">
+              Nivel de urgencia: {urgencia.nivel}
+            </span>
+            <span className="text-zinc-500">{urgencia.porcentaje}%</span>
+          </div>
+          <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              className={`h-full rounded-full bg-gradient-to-r ${urgencia.color}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${urgencia.porcentaje}%` }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            />
+          </div>
+          <p className="mt-2 text-sm text-zinc-300">{urgencia.mensaje}</p>
+        </div>
+      </div>
+
+      {/* Empleado Digital recomendado */}
+      <div className="mt-5 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left sm:p-6">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-red-500 text-lg font-bold text-white">
+          {empleado.iniciales}
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wider text-purple-300">
+            Tu Empleado Digital recomendado
+          </p>
+          <p className="mt-0.5 text-lg font-bold text-white">
+            {empleado.nombre}{" "}
+            <span className="font-normal text-zinc-400">— {empleado.rol}</span>
+          </p>
+          <p className="mt-1 text-sm text-zinc-300">{empleado.linea}</p>
+        </div>
+      </div>
+
+      {/* Detalle del diagnóstico */}
+      <div className="glass mt-4 rounded-2xl p-5 text-left sm:p-6">
         <dl className="space-y-3 text-sm sm:text-base">
           <div>
-            <dt className="text-zinc-500">Área principal de fuga de tiempo</dt>
-            <dd className="font-semibold text-zinc-100">{area}</dd>
-          </div>
-          <div>
-            <dt className="text-zinc-500">Horas perdidas estimadas por semana</dt>
+            <dt className="text-zinc-500">Horas reportadas</dt>
             <dd className="font-semibold text-zinc-100">{horas}</dd>
           </div>
           <div>
@@ -186,21 +318,6 @@ export default function QuizResult({
             <dd className="font-semibold text-zinc-100">{delegar}</dd>
           </div>
         </dl>
-      </div>
-
-      <div className="glow-purple mt-5 flex items-center gap-4 rounded-2xl border border-purple-400/30 bg-gradient-to-br from-purple-600/15 to-red-600/10 p-5 text-left sm:p-6">
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-red-500 text-lg font-bold text-white">
-          {empleado.iniciales}
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-wider text-purple-300">
-            Tu Empleado Digital recomendado
-          </p>
-          <p className="mt-0.5 text-lg font-bold text-white">
-            {empleado.nombre} <span className="text-zinc-400 font-normal">— {empleado.rol}</span>
-          </p>
-          <p className="mt-1 text-sm text-zinc-300">{empleado.linea}</p>
-        </div>
       </div>
 
       <p className="mt-5 text-balance leading-relaxed text-zinc-400">
