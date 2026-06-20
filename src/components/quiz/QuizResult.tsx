@@ -44,7 +44,45 @@ const negocioLabels: Record<string, string> = {
 
 const CALIENTE = new Set(["listo", "evaluando"]);
 
-function buildWhatsappLink(answers: Record<string, string>, name: string) {
+type EmpleadoRecomendado = {
+  nombre: string;
+  rol: string;
+  linea: string;
+  iniciales: string;
+};
+
+const empleadoPorArea: Record<string, EmpleadoRecomendado> = {
+  clientes: {
+    nombre: "Vera",
+    rol: "Empleada Digital de Atención al Cliente",
+    linea: "Responde, califica y agenda — nunca deja a un cliente esperando.",
+    iniciales: "V",
+  },
+  ventas: {
+    nombre: "Max",
+    rol: "Empleado Digital de Ventas",
+    linea: "Da seguimiento a cada lead hasta que responda o compre.",
+    iniciales: "M",
+  },
+  admin: {
+    nombre: "Nora",
+    rol: "Empleada Digital de Administración",
+    linea: "Organiza, factura y recuerda lo que se te olvida.",
+    iniciales: "N",
+  },
+  contenido: {
+    nombre: "Leo",
+    rol: "Empleado Digital de Contenido",
+    linea: "Crea y publica contenido constante sin que tú lo pienses.",
+    iniciales: "L",
+  },
+};
+
+function buildWhatsappLink(
+  answers: Record<string, string>,
+  name: string,
+  empleado: EmpleadoRecomendado
+) {
   const lines = [
     `Hola, soy ${name}. Acabo de hacer el Diagnóstico de Negocios IA en la web 👋`,
     "",
@@ -53,6 +91,7 @@ function buildWhatsappLink(answers: Record<string, string>, name: string) {
     `Horas semanales en tareas manuales: ${horasLabels[answers.horas] ?? "—"}`,
     `Lo primero que delegaría: ${delegarLabels[answers.delegar] ?? "—"}`,
     `Mi momento para invertir: ${inversionLabels[answers.inversion] ?? "—"}`,
+    `Empleado Digital recomendado: ${empleado.nombre} (${empleado.rol})`,
     "",
     "Quiero ver mi plan de Empleado Digital IA.",
   ];
@@ -116,7 +155,8 @@ export default function QuizResult({
   const area = areaLabels[answers.area] ?? "tu operación diaria";
   const horas = horasLabels[answers.horas] ?? "varias horas a la semana";
   const delegar = delegarLabels[answers.delegar] ?? "tareas repetitivas";
-  const whatsappLink = buildWhatsappLink(answers, name);
+  const empleado = empleadoPorArea[answers.area] ?? empleadoPorArea.clientes;
+  const whatsappLink = buildWhatsappLink(answers, name, empleado);
   const mostrarLlamadaPrimero = CALIENTE.has(answers.inversion);
 
   return (
@@ -148,10 +188,25 @@ export default function QuizResult({
         </dl>
       </div>
 
+      <div className="glow-purple mt-5 flex items-center gap-4 rounded-2xl border border-purple-400/30 bg-gradient-to-br from-purple-600/15 to-red-600/10 p-5 text-left sm:p-6">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-red-500 text-lg font-bold text-white">
+          {empleado.iniciales}
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wider text-purple-300">
+            Tu Empleado Digital recomendado
+          </p>
+          <p className="mt-0.5 text-lg font-bold text-white">
+            {empleado.nombre} <span className="text-zinc-400 font-normal">— {empleado.rol}</span>
+          </p>
+          <p className="mt-1 text-sm text-zinc-300">{empleado.linea}</p>
+        </div>
+      </div>
+
       <p className="mt-5 text-balance leading-relaxed text-zinc-400">
         Te preparo un diagnóstico personalizado y te lo envío por WhatsApp. Si
-        quieres, también podemos ver juntos cómo se vería tu Empleado Digital
-        en una llamada de 15 minutos.
+        quieres, también podemos ver juntos cómo se vería {empleado.nombre} en
+        una llamada de 15 minutos.
       </p>
 
       <div className="mt-6 flex flex-col gap-3">
