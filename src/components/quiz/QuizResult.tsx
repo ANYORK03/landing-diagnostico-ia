@@ -264,7 +264,14 @@ export default function QuizResult({
         </p>
         <p className="mt-1 text-sm text-zinc-300">
           en <span className="font-semibold text-zinc-100">{area}</span> — tiempo
-          que tu negocio te está cobrando cada semana.
+          que tu negocio te está cobrando cada mes.
+        </p>
+        <p className="mt-2 text-sm text-zinc-400">
+          Si valoras tu hora en $30, son{" "}
+          <span className="font-semibold text-zinc-200">
+            ${(horasMes * 30).toLocaleString("en-US")} al mes
+          </span>{" "}
+          que se van en tareas repetitivas.
         </p>
 
         {/* Barra de urgencia */}
