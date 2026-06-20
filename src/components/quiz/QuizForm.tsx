@@ -32,6 +32,15 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
     setStep(0);
   }
 
+  function handleNameSubmit(value: string) {
+    setName(value);
+    fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: value, answers }),
+    }).catch(() => {});
+  }
+
   return (
     <section
       ref={ref}
@@ -86,7 +95,7 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
                 exit={{ opacity: 0, x: -24 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
               >
-                <NameStep onSubmit={(value) => setName(value)} />
+                <NameStep onSubmit={handleNameSubmit} />
               </motion.div>
             ) : (
               <motion.div
