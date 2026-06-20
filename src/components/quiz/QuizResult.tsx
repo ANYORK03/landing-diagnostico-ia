@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 const WHATSAPP_NUMBER = "17206943519";
 const MEETING_LINK = "https://meetings-na2.hubspot.com/york-martinez";
@@ -187,6 +188,7 @@ function MeetingButton({ primary }: { primary: boolean }) {
       href={MEETING_LINK}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackEvent("click_agendar_llamada", { primary })}
       whileHover={{ scale: primary ? 1.04 : 1.02 }}
       whileTap={{ scale: 0.97 }}
       className={
@@ -212,6 +214,7 @@ function WhatsappButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackEvent("click_whatsapp", { primary })}
       whileHover={{ scale: primary ? 1.04 : 1.02 }}
       whileTap={{ scale: 0.97 }}
       className={

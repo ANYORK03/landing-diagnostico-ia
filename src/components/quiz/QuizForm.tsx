@@ -7,6 +7,7 @@ import ProgressBar from "./ProgressBar";
 import QuizOptionButton from "./QuizOptionButton";
 import QuizResult from "./QuizResult";
 import NameStep from "./NameStep";
+import { trackEvent } from "@/lib/analytics";
 
 type Answers = Record<string, string>;
 
@@ -22,6 +23,9 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
 
   function handleSelect(value: string) {
     if (!currentQuestion) return;
+    if (step === 0) {
+      trackEvent("diagnostico_iniciado");
+    }
     setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
     setStep((s) => s + 1);
   }
@@ -34,6 +38,11 @@ const QuizForm = forwardRef<HTMLDivElement>(function QuizForm(_, ref) {
 
   function handleNameSubmit(value: string) {
     setName(value);
+    trackEvent("diagnostico_completado", {
+      area: answers.area,
+      negocio: answers.negocio,
+      inversion: answers.inversion,
+    });
     fetch("/api/lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
