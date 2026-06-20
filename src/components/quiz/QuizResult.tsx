@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
 const WHATSAPP_NUMBER = "17206943519";
+const MEETING_LINK = "https://meetings-na2.hubspot.com/york-martinez";
 
 const areaLabels: Record<string, string> = {
   clientes: "atención a clientes",
@@ -88,14 +89,25 @@ export default function QuizResult({
       </p>
 
       <motion.a
-        href={whatsappLink}
+        href={MEETING_LINK}
         target="_blank"
         rel="noopener noreferrer"
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.97 }}
         className="glow-purple mt-8 inline-block rounded-full bg-gradient-to-r from-purple-600 to-red-600 px-8 py-4 text-base font-semibold text-white sm:text-lg"
       >
-        Ver mi plan de sistema IA →
+        Agendar mi diagnóstico (15 min) →
+      </motion.a>
+
+      <motion.a
+        href={whatsappLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        className="mt-3 block rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-zinc-300 hover:border-white/30 hover:text-white"
+      >
+        Prefiero escribirte por WhatsApp
       </motion.a>
 
       <button
