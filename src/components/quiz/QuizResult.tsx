@@ -3,12 +3,50 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
+const WHATSAPP_NUMBER = "17206943519";
+
 const areaLabels: Record<string, string> = {
   clientes: "atención a clientes",
   ventas: "ventas y seguimiento",
   admin: "administración",
   contenido: "contenido y redes",
 };
+
+const horasLabels: Record<string, string> = {
+  "menos-5": "menos de 5 horas/semana",
+  "5-15": "5 a 15 horas/semana",
+  "15-30": "15 a 30 horas/semana",
+  "mas-30": "más de 30 horas/semana",
+};
+
+const delegarLabels: Record<string, string> = {
+  responder: "responder y calificar clientes",
+  agendar: "agendar citas y seguimientos",
+  organizar: "organizar información del negocio",
+  crear: "crear y publicar contenido",
+};
+
+const inversionLabels: Record<string, string> = {
+  listo: "listo para empezar ya",
+  evaluando: "evaluando opciones este mes",
+  curioso: "curioso, explorando aún",
+  viendo: "solo viendo qué existe",
+};
+
+function buildWhatsappLink(answers: Record<string, string>) {
+  const lines = [
+    "Hola, acabo de hacer el Diagnóstico de Negocios IA en la web 👋",
+    "",
+    `Área que más tiempo me roba: ${areaLabels[answers.area] ?? "—"}`,
+    `Horas semanales en tareas manuales: ${horasLabels[answers.horas] ?? "—"}`,
+    `Lo primero que delegaría: ${delegarLabels[answers.delegar] ?? "—"}`,
+    `Mi momento para invertir: ${inversionLabels[answers.inversion] ?? "—"}`,
+    "",
+    "Quiero ver mi plan de Empleado Digital IA.",
+  ];
+  const text = encodeURIComponent(lines.join("\n"));
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+}
 
 export default function QuizResult({
   answers,
@@ -18,6 +56,7 @@ export default function QuizResult({
   onRestart: () => void;
 }) {
   const area = areaLabels[answers.area] ?? "tu operación diaria";
+  const whatsappLink = buildWhatsappLink(answers);
 
   return (
     <div className="text-center">
@@ -37,7 +76,9 @@ export default function QuizResult({
       </p>
 
       <motion.a
-        href="#contacto"
+        href={whatsappLink}
+        target="_blank"
+        rel="noopener noreferrer"
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.97 }}
         className="glow-purple mt-8 inline-block rounded-full bg-gradient-to-r from-purple-600 to-red-600 px-8 py-4 text-base font-semibold text-white sm:text-lg"
